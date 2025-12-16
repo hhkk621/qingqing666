@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!-- 记录的一些变量  没有生效-->
+	<appenders>
+		<!-- 控制台输出的日志格式 -->
+		<console name="Console" target="SYSTEM_OUT">
+			<PatternLayout
+					pattern="%d{HH:mm:ss} %-5level %class{36} %L %M ----- %msg%n" />
+		</console>
+		<!-- fileName：输出路径 filePattern：命名规则 -->
+		<!-- name 配置的名字，唯一 -->
+		<!-- 这个配置的作用，是指定 DEBUG级别的日志，输出到对应文件中-->
+		<RollingFile name="RollingFileDebug"
+					 fileName="D:/logs/debug.log"
+					 filePattern="D:/logs/$${date:yyyy-MM-dd}/debug-%d{yyyy-MM-dd}-%i.log">
+			<Filters>
+				<!--Filters决定日志事件能否被输出。过滤条件有三个值：ACCEPT(接受), DENY(拒绝) or NEUTRAL(中立).-->
+				<!--如果接受/拒绝，日志到这里就会记录，然后结束，如果是中立，则会继续记录.-->
+				<!--
+					level：将被过滤的级别。
+					onMatch:默认值是NEUTRAL
+					onMismatch：默认是DENY
+				-->
+				<!-- 过滤的日志级别是debug-->
+				<ThresholdFilter level="DEBUG"/>
+				<!-- 如果当前记录的日志级别＞info则返回 onMatch 的值，小于info则onMismatch 的值-->
+				<ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL" />
+			</Filters>
+			<!-- 输出格式 -->
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %class{36} %L %M - %msg%n" />
+
+			<Policies>
+				<!-- 单个日志文件的大小限制 -->
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+			<!-- 最多保留20个日志文件 -->
+			<DefaultRolloverStrategy max="20" />
+		</RollingFile>
+
+		<RollingFile name="RollingFileInfo"
+					 fileName="D:/logs/info.log"
+					 filePattern="D:/logs/$${date:yyyy-MM-dd}/info-%d{yyyy-MM-dd}-%i.log">
+			<Filters>
+				<ThresholdFilter level="INFO" />
+				<ThresholdFilter level="WARN" onMatch="DENY"
+								 onMismatch="NEUTRAL" />
+			</Filters>
+			<!-- 输出格式 -->
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />
+			<Policies>
+				<!-- SizeBasedTriggeringPolicy单个文件的大小限制 -->
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+			<!-- DefaultRolloverStrategy同一个文件下的最大文件数 -->
+			<DefaultRolloverStrategy max="20" />
+		</RollingFile>
+
+		<RollingFile name="RollingFileWarn"
+					 fileName="D:/logs/warn.log"
+					 filePattern="D:/logs/$${date:yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log">
+			<Filters>
+				<ThresholdFilter level="WARN" />
+				<ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL" />
+			</Filters>
+			<PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n" />
+			<Policies>
+				<!--<TimeBasedTriggeringPolicy modulate="true" interval="1"/> -->
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+			<!--最多保留20个日志文件 -->
+			<DefaultRolloverStrategy max="20" min="0" />
+		</RollingFile>
+
+		<RollingFile name="RollingFileError"
+					 fileName="D:/logs/error.log"
+					 filePattern="D:/logs/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log">
+			<Filters>
+				<ThresholdFilter level="ERROR" />
+				<ThresholdFilter level="FATAL" onMatch="DENY" onMismatch="NEUTRAL" />
+			</Filters>
+			<PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n" />
+			<Policies>
+				<!--<TimeBasedTriggeringPolicy modulate="true" interval="1"/> -->
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+			<!--最多保留20个日志文件 -->
+			<DefaultRolloverStrategy max="20" min="0" />
+		</RollingFile>
+		<!--  name 标签名字
+			subject 邮件标题
+			to:发送给谁，多个人用,分隔  aaa@163.com,bbb@qq.com
+			from:发送邮件的账户  （需要在邮箱后台，设置中，开启SMTP服务）
+			smtpProtocol  smtp 发送的协议
+			smtpUsername  发送账号
+			smtpPassword  发送密码
+			smtpHost  服务器地址：
+								POP3服务器: pop.163.com
+								SMTP服务器: smtp.163.com
+								IMAP服务器: imap.163.com
+			smtpPort 发送端口， 163的是465  加上会报错 Got bad greeting from SMTP host smtp.163.com, port 465 , response [EOF]
+ smtpPort="465"
+			  ssl="true"
+		-->
+<!--		<SMTP name="Mail"
+			to="chengdujavasm@126.com"
+			from="17335592100@163.com"
+			subject="【系统错误】%d{yyyy-MM-dd HH:mm:ss} - %logger{36}"
+			smtpHost="smtp.163.com"
+			smtpPort="465"
+			smtpProtocol="ssl"
+			smtpUsername="17335592100@163.com"
+			smtpPassword="CLQ5XnDsUs3nxbRS"
+			smtpDebug="true"
+			ignoreExceptions="true">
+			<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{50} - %msg%n"/>
+		</SMTP>-->
+	</appenders>
+
+	<loggers>
+		<!-- 设置当前的默认日志级别-->
+		<!--是SpringBoot项目的默认日志级别-->
+		<root level="INFO">
+			<!--配置生效的位置，如果不配置则不输出-->
+			<appender-ref ref="Console"/>
+			<appender-ref ref="RollingFileDebug"/>
+			<appender-ref ref="RollingFileInfo"/>
+			<appender-ref ref="RollingFileWarn"/>
+			<appender-ref ref="RollingFileError"/>
+		</root>
+		<!--额外配置的logger-->
+		<!--记录druid-sql的记录-->
+		<logger name="druid.sql.Statement" level="debug" additivity="false">
+			<appender-ref ref="druidSqlRollingFile"/>
+		</logger>
+		<!-- log4j2自带的过滤标签，额外指定 特定包的日志级别 -->
+		<logger name="org.springframework.web" level="error"></logger>
+		<logger name="org.springframework.core" level="error"></logger>
+		<logger name="org.springframework.beans" level="error"></logger>
+		<logger name="org.springframework.boot" level="error"></logger>
+		<!--单独设置自己的包 为 debug级别-->
+		<!--单独配置 自己的包-->
+		<logger name="com.javasm" level="debug" additivity="true">
+			<!--输入日志到邮件-->
+			<!--<appender-ref ref="Mail" />-->
+		</logger>
+		<!--异步日志配置-->
+		<!--<AsyncLogger name="org.springframework" level="error" includeLocation="true">
+		<AppenderRef ref="RollingFileError"></AppenderRef>
+		</AsyncLogger>
+		<AsyncLogger name="org.mybatis" level="error" includeLocation="true">
+		<AppenderRef ref="RollingFileError"></AppenderRef>
+		</AsyncLogger>
+		<AsyncLogger name="com.alibaba.druid" level="error"  includeLocation="true">
+		<AppenderRef ref="RollingFileError"></AppenderRef>
+		</AsyncLogger>
+
+		<AsyncRoot level="debug" includeLocation="true">
+		<appender-ref ref="Console"/>
+		<appender-ref ref="RollingFileInfo"/>
+		<appender-ref ref="RollingFileWarn"/>
+		<appender-ref ref="RollingFileError"/>
+		</AsyncRoot>-->
+	</loggers>
+</configuration>

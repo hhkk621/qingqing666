@@ -1,0 +1,129 @@
+@import "/node_modules/bootstrap/scss/bootstrap";
+@import "/node_modules/bootstrap-icons/font/bootstrap-icons.css";
+
+/*小分辨率这个样式生效*/
+.custom-class {
+  display: none;
+}
+/*正常分辨率,这个样式生效*/
+@include media-breakpoint-up(md) {
+  .custom-class {
+    display: block;
+  }
+  .top{
+    position: fixed;
+    /*background-color: #3644d9;
+    color: white;*/
+    -webkit-box-shadow: 0 0 12px 0 rgba(0, 0, 0, .12);
+    box-shadow: 0 0 12px #0000001f;
+    z-index: 999;
+    height: auto;
+    min-height: 75px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    align-items: center;
+  }
+  .top-logo{
+    display: flex;
+    padding-left: 25px;
+  }
+  .top-logo img{
+    height: 50px;
+  }
+  .top-info{
+    display: flex;
+    margin-right: 0px;
+  }
+  .option-item{
+    margin: 0px 25px;
+  }
+  .footer {
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background-color: #fff;
+  }
+  .main-content-wrapper {
+    -webkit-transition: var(--transition);
+    transition: var(--transition);
+    overflow: hidden;
+    min-height: 100vh;
+    padding: 50px 100px 50px 100px;
+  }
+  .align-items-center {
+    align-items: center !important;
+  }
+
+  .card{
+    background-color: #fff;
+    box-shadow: 0 8px 10px #b7c0ce1a;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  .bi-white{
+    color: #fff;
+  }
+  .top .head_pic{
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 50% !important;
+  }
+  .top .nickname{
+    color: #ffffff;
+  }
+  .top .bg-primary{
+    background-color: #C9181E;
+    opacity: 0.8;
+  }
+  .skill-card{
+    min-width: 18rem;
+    margin: 5px;
+  }
+  .skill-list{
+    /*border: #C9181E 1px solid;*/
+    margin-top: 25px;
+  }
+  .game-card{
+    margin-right: 10px;
+  }
+  .game-card.active{
+    background-color: #C9181E;
+    color: #fff;
+  }
+  .banner{
+    padding-top: 75px;
+    background-image: url(http://cd.ray-live.cn/imgs/banner-bg.jpg);
+    background-position: top;
+    background-repeat: repeat-x;
+    background-size: 1920px 491px;
+  }
+  .banner .carousel-inner img{
+    max-height: 260px;
+  }
+  .rank{
+    margin-top: 50px;
+  }
+  .rank-title{
+    margin: 25px 0px;
+  }
+  .rank-header{
+    display: inline-block;
+  }
+  .rank-header img{
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+  }
+  .user-text{
+    display: inline-block;
+    margin-left: 20px;
+  }
+  .rank-user{
+    margin-top: 15px;
+    padding-bottom: 10px;
+    border-bottom: #fff 1px solid;
+  }
+}
