@@ -22,4 +22,5 @@ public interface RedisKeys {
     String AdminUserLoginUname = "adminuser:login:uname:%s";
 
     String AdminRoleListAll = "adminrole:list:all";
+
 }

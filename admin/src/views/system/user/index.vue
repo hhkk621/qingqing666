@@ -180,7 +180,7 @@ let deleteOne = (row)=>{
  }
  let roleList = ref([])
  function queryRoleList(){
-  api.get("/role/all").then(result=>{
+  api.get("/admin/role/all").then(result=>{
     if (result.code === 200){
       roleList.value = result.data;
     }else {

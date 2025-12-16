@@ -1,6 +1,8 @@
 package com.javasm.qingqing.adminuser.service;
 
+import com.github.pagehelper.PageInfo;
 import com.javasm.qingqing.adminuser.entity.AdminRole;
+import com.javasm.qingqing.adminuser.vo.SearchVo;
 
 import java.util.List;
 
@@ -15,4 +17,7 @@ import java.util.List;
 public interface RoleService {
     List<AdminRole> roleListAll();
 
+    PageInfo<AdminRole> page(SearchVo searchVo, Integer pageNum, Integer pageSize);
+
+    void saveOrUpdate(AdminRole role);
 }

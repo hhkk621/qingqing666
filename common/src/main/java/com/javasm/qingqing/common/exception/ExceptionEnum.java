@@ -36,7 +36,7 @@ public enum ExceptionEnum {
 
     SYSTEM_ERROR(500,"系统异常"),
     RESOURCE_NOT_FOUND(405,"请求地址不存在"),
-    ;
+    RoleNameOrRoleCodeAlreadyExists(2004, "角色名称或角色编码已存在");
     private Integer code;
     private String msg;
 }
