@@ -97,8 +97,17 @@ const deleteSelectedRows = () => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    const ids = selectedRows.value.map(row => row.rid).join(',');
 
+    // 获取选中行的角色ID并拼接成字符串，用于批量删除
+    const ids = selectedRows.value.map(row => row.rid).join(',');
+    api.delete("admin/role/delete/"+ids).then(result => {
+      if (result.code === 200){
+        ElMessage.success("删除成功")
+        query()
+      }else {
+        ElMessage.error(result.msg)
+      }
+    })
   }).catch(() => {
     ElMessage.info('已取消删除');
   })
@@ -110,7 +119,14 @@ let deleteOne = (row) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-
+    api.delete("admin/role/delete/"+row.rid).then(result => {
+      if (result.code === 200){
+        ElMessage.success("删除成功")
+        query()
+      }else {
+        ElMessage.error(result.msg)
+      }
+    })
   }).catch(() => {
     ElMessage.info('已取消删除');
   })

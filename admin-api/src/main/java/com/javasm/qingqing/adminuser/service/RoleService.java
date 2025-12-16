@@ -20,4 +20,6 @@ public interface RoleService {
     PageInfo<AdminRole> page(SearchVo searchVo, Integer pageNum, Integer pageSize);
 
     void saveOrUpdate(AdminRole role);
+
+    void deleteByIds(Integer[] ids);
 }

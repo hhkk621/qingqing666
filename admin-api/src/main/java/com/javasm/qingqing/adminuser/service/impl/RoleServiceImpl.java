@@ -14,6 +14,7 @@ import com.javasm.qingqing.common.utils.ParameterUtils;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -92,5 +93,12 @@ public class RoleServiceImpl implements RoleService {
         }
 
         adminRoleService.saveOrUpdate(role);
+    }
+
+    @Override
+    //开启事务
+    @Transactional
+    public void deleteByIds(Integer[] ids) {
+        adminRoleService.removeByIds(List.of(ids));
     }
 }

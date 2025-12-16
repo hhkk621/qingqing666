@@ -21,7 +21,7 @@ public class AdminRoleController {
     RoleService roleService;
 
     @GetMapping("/all")
-    public R roleList(){
+    public R roleList() {
         List<AdminRole> list = roleService.roleListAll();
         return R.ok(list);
     }
@@ -30,15 +30,22 @@ public class AdminRoleController {
     @GetMapping("/page")
     public R page(SearchVo searchVo,
                   @RequestParam(defaultValue = "1") Integer pageNum,
-                  @RequestParam(defaultValue = "10") Integer pageSize){
-        PageInfo<AdminRole> pageInfo =roleService.page(searchVo, pageNum, pageSize);
+                  @RequestParam(defaultValue = "10") Integer pageSize) {
+        PageInfo<AdminRole> pageInfo = roleService.page(searchVo, pageNum, pageSize);
         return R.ok(pageInfo);
     }
 
     //更新或添加角色
     @PostMapping("/saveOrUpdate")
-    public R saveOrUpdate(@RequestBody AdminRole role){
+    public R saveOrUpdate(@RequestBody AdminRole role) {
         roleService.saveOrUpdate(role);
+        return R.ok();
+    }
+
+    //删除
+    @DeleteMapping("delete/{ids}")
+    public R delete(@PathVariable Integer[] ids) {
+        roleService.deleteByIds(ids);
         return R.ok();
     }
 }
