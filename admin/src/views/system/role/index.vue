@@ -42,6 +42,8 @@ let query = () => {
   }
   api.get("/admin/role/page", queryParams.value).then(result => {
     list.value = result.data.list;
+    queryParams.value.total = result.data.total;
+
   })
 
 }
@@ -79,11 +81,11 @@ function reset() {
 
 function save() {
   api.postJson("admin/role/saveOrUpdate", editForm.value).then(result => {
-    if (result.code === 200){
+    if (result.code === 200) {
       ElMessage.success("保存成功")
       editFormVisible.value = false;
       query()
-    }else {
+    } else {
       ElMessage.error(result.msg)
     }
   })
@@ -100,11 +102,11 @@ const deleteSelectedRows = () => {
 
     // 获取选中行的角色ID并拼接成字符串，用于批量删除
     const ids = selectedRows.value.map(row => row.rid).join(',');
-    api.delete("admin/role/delete/"+ids).then(result => {
-      if (result.code === 200){
+    api.delete("admin/role/delete/" + ids).then(result => {
+      if (result.code === 200) {
         ElMessage.success("删除成功")
         query()
-      }else {
+      } else {
         ElMessage.error(result.msg)
       }
     })
@@ -119,11 +121,11 @@ let deleteOne = (row) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    api.delete("admin/role/delete/"+row.rid).then(result => {
-      if (result.code === 200){
+    api.delete("admin/role/delete/" + row.rid).then(result => {
+      if (result.code === 200) {
         ElMessage.success("删除成功")
         query()
-      }else {
+      } else {
         ElMessage.error(result.msg)
       }
     })
@@ -140,75 +142,20 @@ let authMenu = (row) => {
 
 let menuList = ref([])
 let queryAllMenu = () => {
-  menuList.value = [
-    {
-      "mid": 1,
-      "name": "系统管理",
-      "url": "/system",
-      "pid": -1,
-      "icon": "Setting",
-      "status": 1,
-      "sort": 1,
-      "childList": [
-        {
-          "mid": 1001,
-          "name": "用户管理",
-          "url": "/user/list",
-          "pid": 1,
-          "icon": "User",
-          "status": 1,
-          "sort": 11,
-          "childList": null
-        },
-        {
-          "mid": 1002,
-          "name": "角色管理",
-          "url": "/role/list",
-          "pid": 1,
-          "icon": "UserFilled",
-          "status": 1,
-          "sort": 12,
-          "childList": null
-        },
-        {
-          "mid": 1003,
-          "name": "菜单管理",
-          "url": "/menu/list",
-          "pid": 1,
-          "icon": "Menu",
-          "status": 1,
-          "sort": 13,
-          "childList": null
-        }
-      ]
-    },
-    {
-      "mid": 2,
-      "name": "Vip管理",
-      "url": "/vip",
-      "pid": -1,
-      "icon": "ChromeFilled",
-      "status": 1,
-      "sort": 2,
-      "childList": [
-        {
-          "mid": 2001,
-          "name": "会员管理",
-          "url": "/vip/customer",
-          "pid": 2,
-          "icon": "HelpFilled",
-          "status": 1,
-          "sort": 21,
-          "childList": null
-        }
-      ]
-    }
-  ]
+  api.get("/admin/menu/list").then(result => {
+    menuList.value = result.data
+  })
 }
 //用户原有的菜单id,和现在改变之后的菜单id
-let editMenuList = ref([])
+// let editMenuList = ref([])
 let queryMenuByRid = () => {
-  editMenuList.value = [1001, 1002]
+  api.get("/admin/menu/list",{"rid":editForm.value.rid}).then(result=>{
+    const mids = result.data.map(item => item.mid);
+    // 延迟执行，确保 tree 已渲染
+    nextTick(() => {
+      treeRef.value.setCheckedKeys(mids);
+    });
+  })
 }
 let treeRef = ref(null)
 let doAuthMenu = () => {
@@ -220,6 +167,18 @@ let doAuthMenu = () => {
 
   // 合并选中节点（根据业务需求选择是否需要合并）
   const allSelectedKeys = [...checkedKeys, ...halfCheckedKeys]
+  api.postJson("/admin/role/authMenu",{
+    "rid":editForm.value.rid,
+    "mids":allSelectedKeys
+  }).then(result=>{
+    if (result.code === 200){
+      ElMessage.success("保存成功")
+      authMenuFormVisible.value = false
+      query()
+    }else {
+      ElMessage.error(result.msg)
+    }
+  })
 
 }
 onMounted(() => {

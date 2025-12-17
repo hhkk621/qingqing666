@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.javasm.qingqing.adminuser.entity.AdminRole;
+import com.javasm.qingqing.adminuser.entity.RelAdminRoleMenu;
 import com.javasm.qingqing.adminuser.service.AdminRoleService;
+import com.javasm.qingqing.adminuser.service.RelAdminRoleMenuService;
 import com.javasm.qingqing.adminuser.service.RoleService;
+import com.javasm.qingqing.adminuser.vo.RoleMenuAuthVo;
 import com.javasm.qingqing.adminuser.vo.SearchVo;
 import com.javasm.qingqing.common.container.RedisKeys;
 import com.javasm.qingqing.common.exception.ExceptionEnum;
@@ -21,14 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 @Service("myRoleService")
 public class RoleServiceImpl implements RoleService {
 
 
-
     @Resource
     AdminRoleService adminRoleService;
+
+    @Resource
+    RelAdminRoleMenuService relAdminRoleMenuService;
+
     //建议把role的集合放到redis中
     //因为数据量太小，可以存储到JVM内存中
     private static List<AdminRole> roleList = new ArrayList<>();
@@ -38,10 +43,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<AdminRole> roleListAll() {
         //判断 roleList是否过期
-        if (System.currentTimeMillis() - roleListSaveTime > roleListExpTime){
+        if (System.currentTimeMillis() - roleListSaveTime > roleListExpTime) {
             roleList = new ArrayList<>();
         }
-        if (roleList.isEmpty()){
+        if (roleList.isEmpty()) {
             roleList = adminRoleService.list();
             roleListSaveTime = System.currentTimeMillis();
         }
@@ -54,8 +59,8 @@ public class RoleServiceImpl implements RoleService {
         //配置分页对象
         PageHelper.startPage(pageNum, pageSize);
         LambdaQueryWrapper<AdminRole> queryWrapper = new LambdaQueryWrapper<>();
-        if (searchVo != null){
-            if(searchVo.getId() != null){
+        if (searchVo != null) {
+            if (searchVo.getId() != null) {
                 queryWrapper.eq(AdminRole::getRid, searchVo.getId());
             }
             if (StringUtils.hasText(searchVo.getName())) {
@@ -80,14 +85,14 @@ public class RoleServiceImpl implements RoleService {
     public void saveOrUpdate(AdminRole role) {
         ParameterUtils.checkParameter(role);
 
-        if (role.getRid() == null || role.getRid() <= 0){
+        if (role.getRid() == null || role.getRid() <= 0) {
             //新增情况判断角色名和code值不能够重复
             ParameterUtils.checkParameter(role.getName(), role.getCode());
             LambdaQueryWrapper<AdminRole> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(AdminRole::getName, role.getName());
             queryWrapper.or();
             queryWrapper.eq(AdminRole::getCode, role.getCode());
-            if (adminRoleService.count(queryWrapper)  > 0){
+            if (adminRoleService.count(queryWrapper) > 0) {
                 throw new JavasmException(ExceptionEnum.RoleNameOrRoleCodeAlreadyExists);
             }
         }
@@ -100,5 +105,29 @@ public class RoleServiceImpl implements RoleService {
     @Transactional
     public void deleteByIds(Integer[] ids) {
         adminRoleService.removeByIds(List.of(ids));
+    }
+
+
+    //为角色分配菜单
+    @Override
+//    @Transactional
+    public void authMenu(RoleMenuAuthVo roleMenuAuthVo) {
+        ParameterUtils.checkParameter(roleMenuAuthVo);
+        if (roleMenuAuthVo.getRid() != null){
+            List<Integer> mids = roleMenuAuthVo.getMids();
+            //设置RelAdminRoleMenu表中的新分配的关系 为插入数据到RelAdminRoleMenu表做准备
+            List<RelAdminRoleMenu> saveList = new ArrayList<>();
+            mids.forEach(mid ->{
+                RelAdminRoleMenu relAdminRoleMenu = new RelAdminRoleMenu();
+                relAdminRoleMenu.setRid(roleMenuAuthVo.getRid());
+                relAdminRoleMenu.setMid(mid);
+                saveList.add(relAdminRoleMenu);
+            });
+            //到这步，已经把新的关系保存到saveList中，接下来要删除旧的关系，再把新的关系保存到数据库中
+            relAdminRoleMenuService.removeById(roleMenuAuthVo.getRid());
+
+            //批量添加
+            relAdminRoleMenuService.saveBatch(saveList);
+        }
     }
 }

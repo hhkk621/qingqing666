@@ -7,6 +7,7 @@ import com.javasm.qingqing.adminuser.service.AdminMenuService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,6 +40,33 @@ public class AdminMenuServiceImpl extends ServiceImpl<AdminMenuDao, AdminMenu> i
         });
 
         return oneList;
+    }
+
+    //根据role的id查询这个用户的权限
+    @Override
+    public List<AdminMenu> listByRoleId(Integer rid) {
+        List<AdminMenu>list = new ArrayList<>();
+        if (rid == -1){//管理员
+            list = list();//查询所有菜单
+        }else {
+            list = adminMenuDao.selectListByRid(rid);//查询这个角色的权限
+        }if (!list.isEmpty()){
+            //一级菜单
+            List<AdminMenu> oneList = list.stream().filter(menu -> menu.getPid() == -1).collect(Collectors.toList());
+            //二级菜单
+            List<AdminMenu> finalList = list;
+            oneList.forEach(one ->{
+                List<AdminMenu> childList = new ArrayList<>();
+                finalList.forEach(menu ->{
+                    if (one.getMid().equals(menu.getPid())){
+                        childList.add(menu);
+                    }
+                });
+                one.setChildList(childList);
+            });
+            return oneList;
+        }
+        return list;
     }
 }
 

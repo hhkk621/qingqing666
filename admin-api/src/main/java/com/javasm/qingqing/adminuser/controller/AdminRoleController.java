@@ -3,6 +3,7 @@ package com.javasm.qingqing.adminuser.controller;
 import com.github.pagehelper.PageInfo;
 import com.javasm.qingqing.adminuser.entity.AdminRole;
 import com.javasm.qingqing.adminuser.service.RoleService;
+import com.javasm.qingqing.adminuser.vo.RoleMenuAuthVo;
 import com.javasm.qingqing.adminuser.vo.SearchVo;
 import com.javasm.qingqing.common.exception.R;
 import jakarta.annotation.Resource;
@@ -48,4 +49,13 @@ public class AdminRoleController {
         roleService.deleteByIds(ids);
         return R.ok();
     }
+
+
+    //为角色分配菜单
+    @PostMapping("/authMenu")
+    public R authMenu(@RequestBody RoleMenuAuthVo roleMenuAuthVo) {
+        roleService.authMenu(roleMenuAuthVo);
+        return R.ok();
+    }
+
 }

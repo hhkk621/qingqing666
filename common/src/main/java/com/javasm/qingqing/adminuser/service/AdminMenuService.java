@@ -13,5 +13,7 @@ import java.util.List;
  */
 public interface AdminMenuService extends IService<AdminMenu> {
     List<AdminMenu> getListByRid(Integer rid);
+
+    List<AdminMenu> listByRoleId(Integer roleId);
 }
 

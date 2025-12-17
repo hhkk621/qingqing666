@@ -2,6 +2,7 @@ package com.javasm.qingqing.adminuser.service;
 
 import com.github.pagehelper.PageInfo;
 import com.javasm.qingqing.adminuser.entity.AdminRole;
+import com.javasm.qingqing.adminuser.vo.RoleMenuAuthVo;
 import com.javasm.qingqing.adminuser.vo.SearchVo;
 
 import java.util.List;
@@ -22,4 +23,7 @@ public interface RoleService {
     void saveOrUpdate(AdminRole role);
 
     void deleteByIds(Integer[] ids);
+
+    void authMenu(RoleMenuAuthVo roleMenuAuthVo);
+
 }

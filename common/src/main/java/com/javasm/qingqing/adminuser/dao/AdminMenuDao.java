@@ -18,5 +18,7 @@ public interface AdminMenuDao extends BaseMapper<AdminMenu> {
             "where menu.mid = rel.mid and " +
             "rel.rid = #{rid} ")
     List<AdminMenu> selectListByRid(Integer rid);
+
+
 }
 
