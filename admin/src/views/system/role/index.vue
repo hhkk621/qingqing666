@@ -7,7 +7,7 @@ import {
   RefreshRight,
   Plus,
 } from '@element-plus/icons-vue'
-import {ref, onMounted} from "vue";
+import {ref, onMounted, nextTick} from "vue";
 import api from '@/utils/request.js';
 import {formatDay, formatLoginTime} from '@/utils/date.js'
 import {ElMessage, ElMessageBox} from "element-plus";
@@ -29,7 +29,6 @@ let resetQueryForm = () => {
     end: '',
     total: 0
   }
-  query()
 }
 const handleSelectionChange = (val) => {
   selectedRows.value = val;
@@ -42,10 +41,7 @@ let query = () => {
   }
   api.get("/admin/role/page", queryParams.value).then(result => {
     list.value = result.data.list;
-    queryParams.value.total = result.data.total;
-
   })
-
 }
 let editFormVisible = ref(false)
 let editForm = ref({})
@@ -76,11 +72,10 @@ function reset() {
     name: '',
     code: ''
   }
-
 }
 
 function save() {
-  api.postJson("admin/role/saveOrUpdate", editForm.value).then(result => {
+  api.postJson("/admin/role/saveOrUpdate", editForm.value).then(result => {
     if (result.code === 200) {
       ElMessage.success("保存成功")
       editFormVisible.value = false;
@@ -89,6 +84,7 @@ function save() {
       ElMessage.error(result.msg)
     }
   })
+
 }
 
 const deleteSelectedRows = () => {
@@ -99,10 +95,9 @@ const deleteSelectedRows = () => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-
-    // 获取选中行的角色ID并拼接成字符串，用于批量删除
     const ids = selectedRows.value.map(row => row.rid).join(',');
-    api.delete("admin/role/delete/" + ids).then(result => {
+    //ids变成,分割的字符串
+    api.delete("/admin/role/delete/" + ids).then(result => {
       if (result.code === 200) {
         ElMessage.success("删除成功")
         query()
@@ -121,7 +116,7 @@ let deleteOne = (row) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    api.delete("admin/role/delete/" + row.rid).then(result => {
+    api.delete("/admin/role/delete/" + row.rid).then(result => {
       if (result.code === 200) {
         ElMessage.success("删除成功")
         query()
@@ -146,10 +141,8 @@ let queryAllMenu = () => {
     menuList.value = result.data
   })
 }
-//用户原有的菜单id,和现在改变之后的菜单id
-// let editMenuList = ref([])
 let queryMenuByRid = () => {
-  api.get("/admin/menu/list",{"rid":editForm.value.rid}).then(result=>{
+  api.get("/admin/menu/list", {"rid": editForm.value.rid}).then(result => {
     const mids = result.data.map(item => item.mid);
     // 延迟执行，确保 tree 已渲染
     nextTick(() => {
@@ -167,19 +160,18 @@ let doAuthMenu = () => {
 
   // 合并选中节点（根据业务需求选择是否需要合并）
   const allSelectedKeys = [...checkedKeys, ...halfCheckedKeys]
-  api.postJson("/admin/role/authMenu",{
-    "rid":editForm.value.rid,
-    "mids":allSelectedKeys
-  }).then(result=>{
-    if (result.code === 200){
+  api.postJson("/admin/role/authMenu", {
+    "rid": editForm.value.rid,
+    "mids": allSelectedKeys
+  }).then(result => {
+    if (result.code === 200) {
       ElMessage.success("保存成功")
       authMenuFormVisible.value = false
       query()
-    }else {
+    } else {
       ElMessage.error(result.msg)
     }
   })
-
 }
 onMounted(() => {
   resetQueryForm();
@@ -312,11 +304,10 @@ onMounted(() => {
                 show-checkbox
                 node-key="mid"
                 default-expand-all
-                :default-checked-keys="editMenuList"
                 :props="{
                       children: 'childList',
                       label: 'name',
-                      }"
+                }"
             />
           </el-form-item>
         </el-col>

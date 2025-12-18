@@ -7,14 +7,7 @@ import com.javasm.qingqing.adminuser.vo.SearchVo;
 
 import java.util.List;
 
-/**
- * @className: RoleService
- * @author: gfs
- * @date: 2025/12/16 11:28
- * @version: 0.1
- * @since: jdk17
- * @description:
- */
+
 public interface RoleService {
     List<AdminRole> roleListAll();
 
