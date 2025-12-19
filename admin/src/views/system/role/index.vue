@@ -29,6 +29,7 @@ let resetQueryForm = () => {
     end: '',
     total: 0
   }
+  query()
 }
 const handleSelectionChange = (val) => {
   selectedRows.value = val;
@@ -41,6 +42,7 @@ let query = () => {
   }
   api.get("/admin/role/page", queryParams.value).then(result => {
     list.value = result.data.list;
+    queryParams.value.total = result.data.total;
   })
 }
 let editFormVisible = ref(false)
@@ -143,12 +145,29 @@ let queryAllMenu = () => {
 }
 let queryMenuByRid = () => {
   api.get("/admin/menu/list", {"rid": editForm.value.rid}).then(result => {
-    const mids = result.data.map(item => item.mid);
+    // 定义递归函数，收集所有叶子节点的mid
+    const getLeafNodeKeys = (nodes) => {
+      let leafKeys = [];
+      nodes.forEach(node => {
+        // 如果没有子节点，则是叶子节点
+        if (!node.childList || node.childList.length === 0) {
+          leafKeys.push(node.mid);
+        } else {
+          // 如果有子节点，递归处理子节点
+          leafKeys = leafKeys.concat(getLeafNodeKeys(node.childList));
+        }
+      });
+      return leafKeys;
+    };
+
+    // 获取所有叶子节点的mid
+    const leafMids = getLeafNodeKeys(result.data);
+
     // 延迟执行，确保 tree 已渲染
     nextTick(() => {
-      treeRef.value.setCheckedKeys(mids);
+      treeRef.value.setCheckedKeys(leafMids);
     });
-  })
+  });
 }
 let treeRef = ref(null)
 let doAuthMenu = () => {

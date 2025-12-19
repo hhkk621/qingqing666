@@ -3,7 +3,9 @@ package com.javasm.qingqing.adminuser.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.javasm.qingqing.adminuser.entity.AdminMenu;
 import com.javasm.qingqing.adminuser.entity.AdminRole;
+import com.javasm.qingqing.adminuser.entity.AdminUser;
 import com.javasm.qingqing.adminuser.entity.RelAdminRoleMenu;
 import com.javasm.qingqing.adminuser.service.AdminRoleService;
 import com.javasm.qingqing.adminuser.service.RelAdminRoleMenuService;
@@ -27,6 +29,9 @@ import java.util.List;
 @Service("myRoleService")
 public class RoleServiceImpl implements RoleService {
 
+
+    @Resource
+    private RedisTemplate<String, AdminUser> redisTemplate;
 
     @Resource
     AdminRoleService adminRoleService;
@@ -128,6 +133,8 @@ public class RoleServiceImpl implements RoleService {
 
             //批量添加
             relAdminRoleMenuService.saveBatch(saveList);
+
+
         }
     }
 }

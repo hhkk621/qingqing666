@@ -1,5 +1,6 @@
 package com.javasm.qingqing.adminuser.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.javasm.qingqing.adminuser.dao.AdminMenuDao;
 import com.javasm.qingqing.adminuser.entity.AdminMenu;
@@ -67,6 +68,13 @@ public class AdminMenuServiceImpl extends ServiceImpl<AdminMenuDao, AdminMenu> i
             return oneList;
         }
         return list;
+    }
+
+    @Override
+    public Object listAll(int i) {
+       LambdaQueryWrapper<AdminMenu> queryWrapper = new LambdaQueryWrapper<>();
+       queryWrapper.eq(AdminMenu::getPid,i);
+       return list(queryWrapper);
     }
 }
 

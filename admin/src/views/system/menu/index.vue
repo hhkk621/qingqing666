@@ -7,125 +7,64 @@ import {
   RefreshRight,
   Plus,
 } from '@element-plus/icons-vue'
-import {ref,onMounted} from "vue";
+import {ref, onMounted} from "vue";
 import api from '@/utils/request.js';
 import {formatDay, formatLoginTime} from '@/utils/date.js'
 import {ElMessage, ElMessageBox} from "element-plus";
 // 在icon-select组件中
 import IconSelect from "@/components/IconSelect/index.vue";
-let searchTime = ref(["",""])
-let queryParams =ref({})
+
+let searchTime = ref(["", ""])
+let queryParams = ref({})
 let list = ref([])
 let optionList = ref([])
 let isSelectRow = ref(false)
-let isAdd= ref(false);
+let isAdd = ref(false);
 const selectedRows = ref([]);
-let resetQueryForm=()=>{
+let resetQueryForm = () => {
   queryParams.value = {
-    currentPage:1,
-    pageSize:10,
-    name:'',
-    phone:'',
-    type:'',
-    start:'',
-    end:'',
-    total:0
+    currentPage: 1,
+    pageSize: 10,
+    name: '',
+    phone: '',
+    type: '',
+    start: '',
+    end: '',
+    total: 0
   }
 }
 const handleSelectionChange = (val) => {
   selectedRows.value = val;
   isSelectRow.value = selectedRows.value.length > 0;
 };
-let query = ()=>{
-  if (searchTime.value[0]!==''){
+let query = () => {
+  if (searchTime.value[0] !== '') {
     queryParams.value.start = formatDay(searchTime.value[0])
     queryParams.value.end = formatDay(searchTime.value[1])
   }
-  list.value = [
-    {
-      "mid": 1,
-      "name": "系统管理",
-      "url": "/system",
-      "pid": -1,
-      "icon": "Setting",
-      "status": 1,
-      "sort": 1,
-      "childList": [
-        {
-          "mid": 1001,
-          "name": "用户管理",
-          "url": "/user/list",
-          "pid": 1,
-          "icon": "User",
-          "status": 1,
-          "sort": 11,
-          "childList": null
-        },
-        {
-          "mid": 1002,
-          "name": "角色管理",
-          "url": "/role/list",
-          "pid": 1,
-          "icon": "UserFilled",
-          "status": 1,
-          "sort": 12,
-          "childList": null
-        },
-        {
-          "mid": 1003,
-          "name": "菜单管理",
-          "url": "/menu/list",
-          "pid": 1,
-          "icon": "Menu",
-          "status": 1,
-          "sort": 13,
-          "childList": null
-        }
-      ]
-    },
-    {
-      "mid": 2,
-      "name": "Vip管理",
-      "url": "/vip",
-      "pid": -1,
-      "icon": "ChromeFilled",
-      "status": 1,
-      "sort": 2,
-      "childList": [
-        {
-          "mid": 2001,
-          "name": "会员管理",
-          "url": "/vip/customer",
-          "pid": 2,
-          "icon": "HelpFilled",
-          "status": 1,
-          "sort": 21,
-          "childList": null
-        }
-      ]
-    }
-  ];
-  //list.value是全部菜单，从中筛选出1级菜单
-  let oneList = [];
-  list.value.forEach(item=>{
-    let menu = {
-      name: item.name,
-      mid: item.mid,
-      childList: []
-    }
-    oneList.push(menu)
+  api.get("/admin/menu/list", queryParams.value).then(result => {
+    list.value = result.data;
+    //list.value是全部菜单，从中筛选出1级菜单
+    let oneList = [];
+    result.data.forEach(item => {
+      let menu = {
+        name: item.name,
+        mid: item.mid,
+        childList: []
+      }
+      oneList.push(menu)
+    })
+    optionList.value = [{
+      name: '无',
+      mid: '-1',
+      childList: [...oneList]
+    }]
   })
-  optionList.value = [{
-    name: '无',
-    mid: '-1',
-    childList:[...oneList]
-  }]
 }
 let editFormVisible = ref(false)
-let editForm = ref({
-})
+let editForm = ref({})
 let editTitle = ref('编辑')
-let addPage = ()=>{
+let addPage = () => {
   editFormVisible.value = true
   isAdd.value = true
   editTitle.value = "新增菜单"
@@ -134,6 +73,7 @@ let addPage = ()=>{
   let maxSort = findMaxSort(list.value)
   editForm.value.sort = maxSort + 1 // 默认新排序为最大+1
 }
+
 // 递归查找最大sort的函数
 function findMaxSort(menuList) {
   let max = 0
@@ -148,64 +88,103 @@ function findMaxSort(menuList) {
   })
   return max
 }
-let edit = (row)=>{
+
+let edit = (row) => {
   editFormVisible.value = true
   isAdd.value = false
   editTitle.value = "编辑菜单"
   editForm = ref(row)
   editForm.value.status = String(editForm.value.status)
 }
+
 /** 取消按钮 */
 function cancel() {
   editFormVisible.value = false;
   reset();
 }
-function reset(){
-  editForm.value ={
-    status:"1"
+
+function reset() {
+  editForm.value = {
+    status: "1"
   }
 }
-function save() {
 
+function save() {
+  api.postJson("/admin/menu/saveOrUpdate", editForm.value).then(result => {
+    if (result.code === 200) {
+      ElMessage.success("保存成功")
+      editFormVisible.value = false;
+      query()
+    } else {
+      ElMessage.error(result.msg)
+    }
+  })
 
 }
+
 const deleteSelectedRows = () => {
   const idsArray = selectedRows.value.map(row => row.mid);
 
-  ElMessageBox.confirm('是否确认删除菜单编号为['+idsArray+']的数据?', '提示', {
+  ElMessageBox.confirm('是否确认删除菜单编号为[' + idsArray + ']的数据?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
     const ids = selectedRows.value.map(row => row.mid).join(',');
-
+    api.delete("/admin/menu/delete/" + ids).then(result => {
+      if (result.code === 200) {
+        ElMessage.success("删除成功")
+        query()
+      } else {
+        ElMessage.error(result.message)
+      }
+    })
   }).catch(() => {
     ElMessage.info('已取消删除');
   })
 
 };
-let deleteOne = (row)=>{
-  ElMessageBox.confirm('是否确认删除角色编号为['+row.mid+']的数据?', '提示', {
+let deleteOne = (row) => {
+  ElMessageBox.confirm('是否确认删除角色编号为[' + row.mid + ']的数据?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-
+    api.delete("/admin/menu/delete/" + row.mid).then(result => {
+      if (result.code === 200) {
+        ElMessage.success("删除成功")
+        query()
+      } else {
+        ElMessage.error(result.message)
+      }
+    })
   }).catch(() => {
     ElMessage.info('已取消删除');
   })
 }
-function switchHandler(row){
-  ElMessageBox.confirm('是否修改菜单['+row. name+']的状态？', '提示', {
+
+function switchHandler(row) {
+  ElMessageBox.confirm('是否修改菜单[' + row.name + ']的状态？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    if (row.status == '1'){
+    if (row.status == '1') {
       row.status = '0'
-    }else {
+    } else {
       row.status = '1'
     }
+    api.put("/admin/menu/changeStatus", {
+      mid: row.mid,
+      status: row.status
+    }).then(result => {
+      if (result.code === 200) {
+        ElMessage.success("修改成功")
+        query()
+      } else {
+        ElMessage.error(result.msg)
+      }
+    })
 
   }).catch(() => {
     ElMessage.info('已取消删除');
@@ -214,6 +193,7 @@ function switchHandler(row){
 }
 
 const iconSelectRef = ref(null);
+
 /** 展示下拉图标 */
 function showSelectIcon() {
   iconSelectRef.value.reset();
@@ -223,13 +203,15 @@ function showSelectIcon() {
 function selected(name) {
   editForm.value.icon = name;
 }
-onMounted(()=>{
+
+onMounted(() => {
   resetQueryForm();
   query();
 })
-function searchMenu(){
+
+function searchMenu() {
   //筛选出 list中，name值中包含输入框中输入的值
-  list.value = list.value.filter(item=>{
+  list.value = list.value.filter(item => {
     return item.name.includes(queryParams.name)
   })
 }
@@ -240,10 +222,11 @@ function searchMenu(){
     <el-row>
       <el-col>
         <el-button type="success" :icon="Plus" plain @click="addPage">新增</el-button>
-        <el-button type="danger" :icon="Delete" plain @click="deleteSelectedRows" :disabled="!isSelectRow">删除</el-button>
+        <el-button type="danger" :icon="Delete" plain @click="deleteSelectedRows" :disabled="!isSelectRow">删除
+        </el-button>
       </el-col>
     </el-row>
-    <el-row >
+    <el-row>
       <el-table
           :data="list"
           border
@@ -252,7 +235,7 @@ function searchMenu(){
           @selection-change="handleSelectionChange"
           :tree-props="{ children: 'childList', hasChildren: 'true' }"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55"/>
         <el-table-column
             prop="mid"
             label="ID"
@@ -276,7 +259,7 @@ function searchMenu(){
         >
           <template #default="scope">
             <el-icon v-if="scope.row.icon">
-              <component :is="scope.row.icon" />
+              <component :is="scope.row.icon"/>
             </el-icon>
           </template>
         </el-table-column>
@@ -304,10 +287,10 @@ function searchMenu(){
 
         </el-table-column>
         <el-table-column label="操作" default="scope">
-          <template #default="scope" >
+          <template #default="scope">
             <el-button type="primary" size="small" @click="edit(scope.row)">修改</el-button>
-<!--            删除单条时，如果删除的是一级菜单，还要删除其他二级菜单 -->
-<!--            <el-button type="danger" size="small" @click="deleteOne(scope.row)">删除</el-button>-->
+            <!--            删除单条时，如果删除的是一级菜单，还要删除其他二级菜单 -->
+            <!--            <el-button type="danger" size="small" @click="deleteOne(scope.row)">删除</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -315,23 +298,23 @@ function searchMenu(){
     <el-row>
       <el-col :span="24">
 
-        <el-pagination
-            v-model:current-page="queryParams.currentPage"
-            v-model:page-size="queryParams.pageSize"
-            :page-sizes="[5, 10, 20, 50]"
-            :background="true"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="queryParams.total"
-            @size-change="query"
-            @current-change="query"
-        />
+        <!--        <el-pagination-->
+        <!--            v-model:current-page="queryParams.currentPage"-->
+        <!--            v-model:page-size="queryParams.pageSize"-->
+        <!--            :page-sizes="[5, 10, 20, 50]"-->
+        <!--            :background="true"-->
+        <!--            layout="total, sizes, prev, pager, next, jumper"-->
+        <!--            :total="queryParams.total"-->
+        <!--            @size-change="query"-->
+        <!--            @current-change="query"-->
+        <!--        />-->
       </el-col>
     </el-row>
   </div>
 
   <!-- 添加菜单信息 -->
   <el-dialog v-model="editFormVisible" :title="editTitle" width="600px" append-to-body>
-    <el-form :model="editForm"  ref="editFormRef"  label-width="80px">
+    <el-form :model="editForm" ref="editFormRef" label-width="80px">
       <el-row>
         <el-col :span="24">
           <el-form-item label="父级菜单" prop="pid">
@@ -363,11 +346,13 @@ function searchMenu(){
                         class="el-input__icon"
                         style="height: 32px;width: 16px;"
                     />
-                    <el-icon v-else style="height: 32px;width: 16px;"><search /></el-icon>
+                    <el-icon v-else style="height: 32px;width: 16px;">
+                      <search/>
+                    </el-icon>
                   </template>
                 </el-input>
               </template>
-              <icon-select ref="iconSelectRef" @selected="selected" :active-icon="editForm.icon" />
+              <icon-select ref="iconSelectRef" @selected="selected" :active-icon="editForm.icon"/>
             </el-popover>
           </el-form-item>
         </el-col>
@@ -375,27 +360,27 @@ function searchMenu(){
       <el-row>
         <el-col :span="12">
           <el-form-item label="菜单名称" prop="name">
-            <el-input v-model="editForm.name" placeholder="请输入菜单名" maxlength="30" />
+            <el-input v-model="editForm.name" placeholder="请输入菜单名" maxlength="30"/>
           </el-form-item>
         </el-col>
 
         <el-col :span="12">
           <el-form-item label="菜单地址" prop="url">
-            <el-input v-model="editForm.url" placeholder="请输入地址" maxlength="30" />
+            <el-input v-model="editForm.url" placeholder="请输入地址" maxlength="30"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="12">
           <el-form-item label="显示排序" prop="sort">
-            <el-input-number v-model="editForm.sort" controls-position="right" :min="0" />
+            <el-input-number v-model="editForm.sort" controls-position="right" :min="0"/>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="状态" prop="status">
-            <el-radio-group v-model="editForm.status" >
-              <el-radio-button label="正常" value="1" />
-              <el-radio-button label="关闭" value="0" />
+            <el-radio-group v-model="editForm.status">
+              <el-radio-button label="正常" value="1"/>
+              <el-radio-button label="关闭" value="0"/>
             </el-radio-group>
           </el-form-item>
         </el-col>

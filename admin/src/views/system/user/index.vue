@@ -30,6 +30,8 @@ let resetQueryForm=()=>{
     end:'',
     total:0
   }
+  searchTime.value = ["", ""];
+  query();  // 立即重新查询
 }
 let query = ()=>{
   if (searchTime.value[0]!==''){
