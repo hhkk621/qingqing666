@@ -4,6 +4,8 @@ import com.github.pagehelper.PageInfo;
 import com.javasm.qingqing.adminuser.entity.AdminUser;
 import com.javasm.qingqing.adminuser.service.UserService;
 import com.javasm.qingqing.adminuser.vo.SearchVo;
+import com.javasm.qingqing.annotation.OperateContent;
+import com.javasm.qingqing.annotation.OperateModule;
 import com.javasm.qingqing.common.exception.R;
 import jakarta.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * @description:
  */
 @RestController
+@OperateModule("用户管理")
 @RequestMapping("/admin/user")
 @PreAuthorize("@menuAuth.check('/user/list')")
 public class AdminUserController {
@@ -41,6 +44,7 @@ public class AdminUserController {
     @Resource
     UserService userService;
 
+    @OperateContent("用户列表")
     @GetMapping("/page")
     public R page(SearchVo searchVo){
 
