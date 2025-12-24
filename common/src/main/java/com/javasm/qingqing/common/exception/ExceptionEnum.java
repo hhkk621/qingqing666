@@ -34,6 +34,21 @@ public enum ExceptionEnum {
 
 
 
+    // 商品类型相关
+    GOODS_TYPE_NOT_FOUND(3001, "商品类型不存在"),
+    GOODS_TYPE_NAME_NULL(3002, "商品类型名称不能为空"),
+    GOODS_TYPE_HAS_CHILDREN(3003, "商品类型存在子类型，无法删除"),
+    GOODS_TYPE_PARENT_INVALID(3004, "父级类型无效"),
+    GOODS_TYPE_ID_NULL(3005, "商品类型ID不能为空"),
+    GOODS_TYPE_SAVE_FAILED(3006, "保存商品类型失败"),
+    GOODS_TYPE_UPDATE_FAILED(3007, "更新商品类型失败"),
+    GOODS_TYPE_DELETE_FAILED(3008, "删除商品类型失败"),
+    GOODS_TYPE_QUERY_FAILED(3009, "查询商品类型失败"),
+    GOODS_TYPE_TREE_FAILED(3010, "获取商品类型树失败"),
+    GOODS_TYPE_CHILDREN_QUERY_FAILED(3011, "查询子类型失败"),
+
+
+
     SYSTEM_ERROR(500,"系统异常"),
     RESOURCE_NOT_FOUND(405,"请求地址不存在"),
     RoleNameOrRoleCodeAlreadyExists(2004, "角色名称或角色编码已存在");

@@ -75,5 +75,31 @@ export default {
     },
     delete(url, data) {
         return service.delete(url, { params: data });
+    },
+
+
+    // 🔥 新增：下载文件方法
+    download(url, data, fileName = '') {
+        return service({
+            method: 'get',
+            url: url,
+            params: data,
+            responseType: 'blob'  // 指定响应类型
+        }).then(response => {
+            // 获取文件名
+            let downloadFilename = fileName;
+            if (!downloadFilename && response.headers['content-disposition']) {
+                const contentDisposition = response.headers['content-disposition'];
+                const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (filenameMatch && filenameMatch[1]) {
+                    downloadFilename = decodeURIComponent(filenameMatch[1].replace(/['"]/g, ''));
+                }
+            }
+
+            return {
+                data: response.data,  // blob数据
+                filename: downloadFilename || 'download'
+            };
+        });
     }
 };

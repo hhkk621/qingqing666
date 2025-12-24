@@ -5,6 +5,7 @@ import errorRouter from "@/router/models/error.js";
 import userRouter from "@/router/models/user.js";
 import systemRouter from "@/router/models/system.js";
 import vipRouter from "@/router/models/vip.js";
+import productRouter from "@/router/models/product.js";
 
 
 export const constantRoutes=[
@@ -26,6 +27,7 @@ export const constantRoutes=[
             ...userRouter,
             ...systemRouter,
             ...vipRouter,
+            ...productRouter,  // 添加产品管理路由
         ]
     },
     ...errorRouter,
